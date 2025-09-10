@@ -2,24 +2,20 @@ import discord
 from discord.ext import commands, tasks
 from mcstatus import MinecraftServer
 
-# --- CONFIG ---
 DISCORD_TOKEN = "YOUR_DISCORD_BOT_TOKEN"
 PREFIX = "!"
-MINECRAFT_IP = "play.yourserver.com"  # Replace with your server IP
-MINECRAFT_PORT = 25565  # Replace if using custom port
+MINECRAFT_IP = "play.yourserver.com" 
+MINECRAFT_PORT = 25565
 
-# --- SETUP BOT ---
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
-# --- EVENTS ---
 @bot.event
 async def on_ready():
     print(f"✅ {bot.user} is online!")
-    update_status.start()  # start the loop when bot is ready
+    update_status.start()  
 
-# --- TASK: Update Bot Status ---
-@tasks.loop(seconds=60)  # update every 60 seconds
+@tasks.loop(seconds=60)  
 async def update_status():
     try:
         server = MinecraftServer.lookup(f"{MINECRAFT_IP}:{MINECRAFT_PORT}")
@@ -30,7 +26,6 @@ async def update_status():
     
     await bot.change_presence(activity=activity)
 
-# --- COMMANDS ---
 @bot.command()
 async def status(ctx):
     try:
@@ -38,8 +33,7 @@ async def status(ctx):
         
         # Get server status
         status = server.status()
-        
-        # Get player list (needs enable-query=true in server.properties)
+
         try:
             query = server.query()
             player_names = ", ".join(query.players.names) if query.players.online > 0 else "No players online"
@@ -68,5 +62,4 @@ async def status(ctx):
         )
         await ctx.send(embed=embed)
 
-# --- RUN BOT ---
 bot.run(DISCORD_TOKEN)
